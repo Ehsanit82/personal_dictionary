@@ -5,7 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_dictionary/src/domain/models/word.dart';
 import 'package:your_dictionary/src/presentation/resources/strings_manager.dart';
-
 import '../bloc/word/word_bloc.dart';
 
 enum ErrorStatus {
