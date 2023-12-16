@@ -84,7 +84,7 @@ class _WordListWidgetState extends State<WordListWidget> {
       ],
       child: Positioned(
         height: widget.constraints.maxWidth >= 450
-            ? widget.constraints.maxHeight * 0.6
+            ? widget.constraints.maxHeight * 0.65
             : widget.constraints.maxHeight * 0.85,
         top: widget.constraints.maxWidth >= 450
             ? widget.constraints.maxHeight * 0.35
