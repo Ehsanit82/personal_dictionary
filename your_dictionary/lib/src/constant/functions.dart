@@ -1,12 +1,12 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_dictionary/src/domain/models/word.dart';
 import 'package:your_dictionary/src/presentation/resources/strings_manager.dart';
 
 import '../bloc/word/word_bloc.dart';
-import '../presentation/resources/color_manager.dart';
 
 enum ErrorStatus {
   error,
@@ -109,7 +109,7 @@ Future<String?> getPrefLanguageMode() async{
       msg: message ?? "",
       gravity: ToastGravity.BOTTOM,
       toastLength: Toast.LENGTH_LONG,
-      backgroundColor: ColorManager.primary,
+      backgroundColor: Colors.grey.shade700,
       fontSize: 14,
     );
   }

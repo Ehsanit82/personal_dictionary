@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -46,10 +47,10 @@ class _DetailScreenState extends State<DetailScreen> {
     mode = context.read<WordBloc>().state.mode;
     return GestureDetector(
       onTap: () {
-        // FocusManager.instance.primaryFocus?.unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
       },
       child: Scaffold(
-        
+        resizeToAvoidBottomInset: false,
         backgroundColor: ColorManager.primary,
         body: SafeArea(
           
@@ -117,9 +118,9 @@ class _DetailScreenState extends State<DetailScreen> {
             getTitleContent(wordData.title, constraints),
             SizedBox(height: constraints.maxHeight * 0.02),
             getClasses(classes.join(" | ")),
-            SizedBox(height: constraints.maxHeight * 0.15),
-            getButtons(wordData),
-            SizedBox(height: constraints.maxHeight * 0.05),
+            SizedBox(height: constraints.maxHeight * 0.1),
+            getButtons(wordData, constraints),
+            // SizedBox(height: constraints.maxHeight * 0.0001),
           ],
         ),
       ),
@@ -240,15 +241,16 @@ class _DetailScreenState extends State<DetailScreen> {
           : Container(
               constraints:
                   BoxConstraints(maxHeight: constraints.maxHeight * 0.2),
-              child: SelectionArea(
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return RichText(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return SelectionArea(
+                    selectionControls: MaterialTextSelectionControls(),
+                    child: Text.rich(
                       strutStyle: const StrutStyle(
                         height: 1.5,
                       ),
-                      text: TextSpan(
+                     TextSpan(
                         text: "${index + 1}. ",
                         children: [
                           TextSpan(
@@ -264,10 +266,10 @@ class _DetailScreenState extends State<DetailScreen> {
                           fontSize: 15,
                         ),
                       ),
-                    );
-                  },
-                  itemCount: definitions.length,
-                ),
+                    ),
+                  );
+                },
+                itemCount: definitions.length,
               ),
             ),
     );
@@ -290,8 +292,8 @@ class _DetailScreenState extends State<DetailScreen> {
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
                 return SelectionArea(
-                  child: RichText(
-                    text: TextSpan(text: "${index + 1}. ",
+                  child: Text.rich(
+                    TextSpan(text: "${index + 1}. ",
                       style: TextStyle(
                       color: ColorManager.primary,
                       fontSize: 15,
@@ -315,42 +317,54 @@ class _DetailScreenState extends State<DetailScreen> {
           );
   }
 
-  Widget getButtons(Word wordData) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        customIconButton(
-          () {
-            context
-                .read<TextToSpeechBloc>()
-                .add(PlayAudioEvent(text: wordData.title, mode: mode));
-          },
-          Icons.volume_up,
-        ),
-        customIconButton(() {
-          Navigator.pushNamed(context, Routes.editWordRoute, arguments: id);
-        }, Icons.mode_edit_rounded),
-        customIconButton(() {
-          context
-              .read<WordBloc>()
-              .add(AddToMarkedWordsEvent(index: index, updatedWord: wordData));
-          print(wordData.isMarked);
-        }, wordData.isMarked ? FontAwesomeIcons.check : FontAwesomeIcons.plus),
-        customIconButton(
-          () {
-            deleteDialog().then((val) {
-              if (val == true) {
-                Navigator.pop(context);
-                Future.delayed(Duration.zero).then((value) {
-                  context.read<WordBloc>().add(RemoveWordEvent(id: id));
+  Widget getButtons(Word wordData,BoxConstraints constraints) {
+    return SizedBox(
+      height:constraints.maxWidth>450 ? constraints.maxHeight *.3  :  constraints.maxHeight * .3,
+      width: constraints.maxWidth>450 ? constraints.maxWidth *.35  : constraints.maxWidth * 0.7,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: customIconButton(
+              () {
+                context
+                    .read<TextToSpeechBloc>()
+                    .add(PlayAudioEvent(text: wordData.title, mode: mode));
+              },
+              Icons.volume_up,
+            ),
+          ),
+          Expanded(
+            child: customIconButton(() {
+              Navigator.pushNamed(context, Routes.editWordRoute, arguments: id);
+            }, Icons.mode_edit_rounded),
+          ),
+          Expanded(
+            child: customIconButton(() {
+              context
+                  .read<WordBloc>()
+                  .add(AddToMarkedWordsEvent(index: index, updatedWord: wordData));
+              print(wordData.isMarked);
+            }, wordData.isMarked ? FontAwesomeIcons.check : FontAwesomeIcons.plus),
+          ),
+          Expanded(
+            child:  customIconButton(
+              () {
+                deleteDialog().then((val) {
+                  if (val == true) {
+                    Navigator.pop(context);
+                    Future.delayed(Duration.zero).then((value) {
+                      context.read<WordBloc>().add(RemoveWordEvent(id: id));
+                    });
+                  }
                 });
-              }
-            });
-          },
-          Icons.delete_rounded,
-        ),
-      ],
+              },
+              Icons.delete_rounded,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -410,13 +424,13 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Widget customIconButton(Function function, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.only(left: 5, right: 5, bottom: 8),
+      padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
       child: InkWell(
         borderRadius: BorderRadius.circular(15),
         onTap: () => function(),
         child: Container(
-          width: 50,
-          height: 50,
+          width: 55,
+          height: 55,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
               color: ColorManager.grey.withOpacity(0.3)),
