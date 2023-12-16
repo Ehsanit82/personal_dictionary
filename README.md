@@ -15,4 +15,3 @@ Features of the program:
 
 • Ability to show desired words
 
-![Uploading IMG_0136.png…]()
