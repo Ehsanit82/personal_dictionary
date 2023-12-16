@@ -12,5 +12,7 @@ Features of the program:
 
 • Quick and convenient search using filtering
 
+
 • Ability to show desired words
 
+![Uploading IMG_0136.png…]()
