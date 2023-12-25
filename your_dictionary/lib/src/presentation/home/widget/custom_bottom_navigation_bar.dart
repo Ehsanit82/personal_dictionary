@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:your_dictionary/src/bloc/mark_word/mark_word_cubit.dart';
 import 'package:your_dictionary/src/domain/models/word.dart';
 
-import '../../../bloc/marked_words/marked_words_bloc.dart';
 import '../../resources/color_manager.dart';
 import '../../resources/routes_manager.dart';
 
@@ -16,8 +16,6 @@ class CustomBottomNavigationBar extends StatefulWidget {
 }
 
 class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
-  bool isMainSelected = true;
-  bool isMarkedSelected = false;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -35,7 +33,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
               iconButtonBar(
                 Icons.home_filled,
                 () {
-                  context.read<MarkedWordsBloc>().add(SetAllWordsEvent());
+                  context.read<MarkWordCubit>().setAllWordsEvent();
                 },
                 Limit.all,
               ),
@@ -49,7 +47,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
               iconButtonBar(
                 Icons.bookmarks_rounded,
                 () {
-                  context.read<MarkedWordsBloc>().add(SetMarkedWordsEvent());
+                  context.read<MarkWordCubit>().setMarkedWordsEvent();
                 },
                 Limit.marked
               ),
@@ -72,7 +70,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             size: 30,
           ),
         ),
-        if (limit == context.watch<MarkedWordsBloc>().state.typeOfLimit)
+        if (limit == context.watch<MarkWordCubit>().state.typeOfLimit)
           Text(
             "●",
             style: TextStyle(color: ColorManager.primary),

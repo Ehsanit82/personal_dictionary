@@ -54,6 +54,8 @@ dependencies:
   shared_preferences: ^2.2.2
   font_awesome_flutter: ^10.6.0
   vibration: ^1.8.4
+  get_it: ^7.6.4
+  dartz: ^0.10.1
 
 
 

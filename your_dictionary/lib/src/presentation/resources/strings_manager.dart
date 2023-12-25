@@ -1,6 +1,6 @@
 class AppStrings {
   
-  static const String helloWorld = 'Hello World';
+  static const String word = 'Word';
   static const String verb = 'verb';
   static const String adjective = 'adjective';
   static const String adverb = 'adverb';

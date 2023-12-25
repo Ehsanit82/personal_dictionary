@@ -1,8 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -52,8 +48,7 @@ class _DetailScreenState extends State<DetailScreen> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: ColorManager.primary,
-        body: SafeArea(
-          
+        body: SafeArea(    
           child: AnnotatedRegion(
             value: const SystemUiOverlayStyle(
               statusBarIconBrightness: Brightness.light,
@@ -120,7 +115,7 @@ class _DetailScreenState extends State<DetailScreen> {
             getClasses(classes.join(" | ")),
             SizedBox(height: constraints.maxHeight * 0.1),
             getButtons(wordData, constraints),
-            // SizedBox(height: constraints.maxHeight * 0.0001),
+            SizedBox(height: constraints.maxHeight * 0.02),
           ],
         ),
       ),
@@ -319,7 +314,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Widget getButtons(Word wordData,BoxConstraints constraints) {
     return SizedBox(
-      height:constraints.maxWidth>450 ? constraints.maxHeight *.3  :  constraints.maxHeight * .3,
+      height:constraints.maxWidth>450 ? constraints.maxHeight *.3  :  constraints.maxHeight * .23,
       width: constraints.maxWidth>450 ? constraints.maxWidth *.35  : constraints.maxWidth * 0.7,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -429,8 +424,8 @@ class _DetailScreenState extends State<DetailScreen> {
         borderRadius: BorderRadius.circular(15),
         onTap: () => function(),
         child: Container(
-          width: 55,
-          height: 55,
+          width: double.infinity,
+          height: double.infinity,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
               color: ColorManager.grey.withOpacity(0.3)),
