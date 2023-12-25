@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:your_dictionary/src/bloc/check_validate/check_validate_bloc.dart';
-import 'package:your_dictionary/src/bloc/radio_toggle/radio_toggle_bloc.dart';
-import 'package:your_dictionary/src/bloc/text_to_speech/text_to_speech_bloc.dart';
+import 'package:your_dictionary/src/bloc/change_filter_color/change_filter_color_cubit.dart';
+import 'package:your_dictionary/src/bloc/mark_word/mark_word_cubit.dart';
 import 'package:your_dictionary/src/bloc/word/word_bloc.dart';
 import 'package:your_dictionary/src/bloc/word_filter/word_filter_bloc.dart';
-import 'package:your_dictionary/src/bloc/word_search/word_search_bloc.dart';
+import 'package:your_dictionary/src/common/di.dart';
+import 'package:your_dictionary/src/data/data_source/local_data_source.dart';
 import 'package:your_dictionary/src/domain/models/word.dart';
-import 'package:your_dictionary/src/presentation/page_transition.dart';
-import 'src/bloc/change_filter_color/change_filter_color_bloc.dart';
-import 'src/bloc/definition/definition_bloc.dart';
 import 'src/bloc/filtered_words/filtered_words_bloc.dart';
-import 'src/bloc/marked_words/marked_words_bloc.dart';
+import 'src/bloc/search_word/search_word_cubit.dart';
 import 'src/constant/functions.dart';
 import 'src/presentation/resources/routes_manager.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
   await Hive.initFlutter();
+  await initAppModule();
   Hive.registerAdapter<Word>(WordAdapter());
   await Hive.openBox<Word>(EN_FA_BOX);
   await Hive.openBox<Word>(DE_FA_BOX);
@@ -35,15 +33,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String? mode;
+  final LocalDataSource _localDataSource = instance<LocalDataSource>();
   @override
-  void didChangeDependencies() async{
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      if(prefs.containsKey(LANGUAGE_MODE_KEY)) {
-        mode = await getPrefLanguageMode();
-      }
+  void didChangeDependencies() async {
+    if (instance<SharedPreferences>().containsKey(LANGUAGE_MODE_KEY)) {
+      mode = await _localDataSource.getPrefLanguageMode();
+    }
     super.didChangeDependencies();
-    
   }
+
   @override
   void dispose() async {
     await Hive.close();
@@ -54,17 +52,14 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<MarkedWordsBloc>(
-          create: (context) => MarkedWordsBloc(),
+        BlocProvider<MarkWordCubit>(
+          create: (context) => MarkWordCubit(),
         ),
-        BlocProvider<TextToSpeechBloc>(
-          create: (context) => TextToSpeechBloc(),
+        BlocProvider<ChangeFilterColorCubit>(
+          create: (context) => ChangeFilterColorCubit(),
         ),
-        BlocProvider<ChangeFilterColorBloc>(
-          create: (context) => ChangeFilterColorBloc(),
-        ),
-        BlocProvider<WordSearchBloc>(
-          create: (context) => WordSearchBloc(),
+        BlocProvider<SearchWordCubit>(
+          create: (context) => SearchWordCubit(),
         ),
         BlocProvider<WordFilterBloc>(
           create: (context) => WordFilterBloc(),
@@ -72,28 +67,12 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<FilteredWordsBloc>(
           create: (context) => FilteredWordsBloc(),
         ),
-        BlocProvider<CheckValidateBloc>(
-          create: (context) => CheckValidateBloc(),
-        ),
-        BlocProvider<RadioToggleBloc>(
-          create: (context) => RadioToggleBloc(),
-        ),
         BlocProvider<WordBloc>(
-          create: (context) => WordBloc(
-            mode: getLanguageMode(mode ?? "")
-          ),
+          create: (context) => WordBloc(mode: getLanguageMode(mode ?? ""),instance()),
         ),
-        BlocProvider<DefinitionBloc>(
-          create: (context) => DefinitionBloc(),
-        )
       ],
       child: MaterialApp(
-        theme: ThemeData(
-          // pageTransitionsTheme: PageTransitionsTheme(builders: {
-          //   TargetPlatform.android: CustomPageTransitionBuilder(),
-          //   TargetPlatform.iOS: CustomPageTransitionBuilder(),
-          // }),
-        ),
+        theme: ThemeData(),
         title: 'Your Dictionary',
         debugShowCheckedModeBanner: false,
         onGenerateRoute: RouteGenerator.getRoute,

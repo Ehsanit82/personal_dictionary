@@ -1,7 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'text_to_speech_bloc.dart';
 
-
+enum ErrorStatus {
+  error,
+  initial,
+}
 
 class TextToSpeechState {
   ErrorStatus status;

@@ -4,6 +4,7 @@ class ColorManager{
   static Color white = HexColor.fromHexColor('#ffffff');
   static Color yellow = HexColor.fromHexColor('#f0ce0e');
   static Color grey = HexColor.fromHexColor('#E8e8ea');
+  static Color filterColor = const Color.fromARGB(255, 199, 196, 196);
 }
 
 

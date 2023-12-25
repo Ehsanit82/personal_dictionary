@@ -1,7 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:your_dictionary/src/bloc/check_validate/check_validate_bloc.dart';
 import 'package:your_dictionary/src/bloc/radio_toggle/radio_toggle_bloc.dart';
 import 'package:your_dictionary/src/bloc/word/word_bloc.dart';
 import 'package:your_dictionary/src/constant/functions.dart';
@@ -21,9 +19,9 @@ class AddScreen extends StatefulWidget {
 }
 
 class _AddScreenState extends State<AddScreen> with TickerProviderStateMixin {
-late RadioToggleBloc radioToggleBloc;
-late DefinitionBloc definitionBloc;
-late CheckValidateBloc checkValidateBloc;
+  late RadioToggleBloc radioToggleBloc;
+  late DefinitionBloc definitionBloc;
+
 
   Word newWord = Word(
     title: "",
@@ -48,7 +46,7 @@ late CheckValidateBloc checkValidateBloc;
       adverb: radioToggleBloc.state.adverbToggle,
       verb: radioToggleBloc.state.verbToggle,
       phrases: radioToggleBloc.state.phrasesToggle,
-      title: _titleController.text,
+      title: _titleController.text.trim(),
       secMeaning: definitionBloc.state.secDefs,
       mainMeaning: definitionBloc.state.mainDefs,
       mainExample: definitionBloc.state.mainExample,
@@ -63,8 +61,6 @@ late CheckValidateBloc checkValidateBloc;
     _secMeaningController = TextEditingController();
     _mainMeaningController = TextEditingController();
     _mainExampleController = TextEditingController();
-    _titleController.addListener(() =>
-        checkValidateBloc.add(CheckTitleEvent(value: _titleController.text)));
     super.initState();
   }
 
@@ -72,7 +68,6 @@ late CheckValidateBloc checkValidateBloc;
   void didChangeDependencies() {
     radioToggleBloc = context.read<RadioToggleBloc>();
     definitionBloc = context.read<DefinitionBloc>();
-    checkValidateBloc = context.read<CheckValidateBloc>();
     mode = context.read<WordBloc>().state.mode;
     super.didChangeDependencies();
   }
@@ -83,50 +78,45 @@ late CheckValidateBloc checkValidateBloc;
     _secMeaningController.dispose();
     _mainMeaningController.dispose();
     _mainExampleController.dispose();
-    radioToggleBloc.add(ResetToggleEvent());
-    definitionBloc.add(ResetDefinitionEvent());
-    checkValidateBloc.add(ResetValidationEvent());
     super.dispose();
   }
 
-  void addToFaDef() {
-    if (_secMeaningController.text.isNotEmpty) {
+  void addToSecDef() {
+    if (_secMeaningController.text.trim().isNotEmpty) {
       definitionBloc
-          .add(AddToSecDefsEvent(faDef: _secMeaningController.text));
+          .add(AddToSecDefsEvent(faDef: _secMeaningController.text.trim()));
       _secMeaningController.clear();
     }
   }
 
-  void addToEnDef() {
-    if (_mainMeaningController.text.isNotEmpty) {
-  
-     definitionBloc
-          .add(AddToMainDefsEvent(enDef: _mainMeaningController.text));
+  void addToMainDef() {
+    if (_mainMeaningController.text.trim().isNotEmpty) {
+      definitionBloc
+          .add(AddToMainDefsEvent(enDef: _mainMeaningController.text.trim()));
       _mainMeaningController.clear();
     }
   }
-    void addToMainExample() {
-    if (_mainExampleController.text.isNotEmpty) {
-  
-      definitionBloc
-          .add(AddToMainExEvent(mainExample: _mainExampleController.text));
+
+  void addToMainExample() {
+    if (_mainExampleController.text.trim().isNotEmpty) {
+      definitionBloc.add(
+          AddToMainExEvent(mainExample: _mainExampleController.text.trim()));
       _mainExampleController.clear();
     }
   }
 
-  void removeFromFaDef(int index) {
-
+  void removeFromSecDef(int index) {
     definitionBloc.add(RemoveFromSecDefEvent(index: index));
   }
 
-  void removeFromEnDef(int index) {
-
+  void removeFromMainDef(int index) {
     definitionBloc.add(RemoveFromMainDefEvent(index: index));
   }
-void removeFromMainExample(int index){
-   definitionBloc.add(RemoveFromMainExEvent(index: index));
 
-}
+  void removeFromMainExample(int index) {
+    definitionBloc.add(RemoveFromMainExEvent(index: index));
+  }
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -153,7 +143,8 @@ void removeFromMainExample(int index){
             child: Form(
               key: _formKey,
               child: Padding(
-                padding:  EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +160,7 @@ void removeFromMainExample(int index){
                         style: const TextStyle(fontSize: 20),
                         textAlign: TextAlign.center,
                         validator: (value) {
-                          if (value!.isEmpty) {
+                          if (value!.trim().isEmpty) {
                             return AppStrings.notEmpty;
                           }
                           return null;
@@ -177,24 +168,27 @@ void removeFromMainExample(int index){
                         keyboardType: TextInputType.name,
                         decoration: InputDecoration(
                           errorStyle: const TextStyle(fontSize: 14),
-                          hintText: AppStrings.helloWorld,
-                          errorText:
-                              context.watch<CheckValidateBloc>().state.isTitleEmpty
-                                  ? AppStrings.notEmpty
-                                  : null,
+                          hintText: AppStrings.word,
+                          errorText: _titleController.text.isEmpty
+                              ? AppStrings.notEmpty
+                              : null,
                         ),
                       ),
                     ),
-                    
+
                     BlocBuilder<RadioToggleBloc, RadioToggleState>(
                       builder: (context, state) {
                         return SizedBox(
-                          height:constraints.maxWidth >= 450 ? constraints.maxHeight * 0.18 : constraints.maxHeight * 0.14,
+                          height: constraints.maxWidth >= 450
+                              ? constraints.maxHeight * 0.18
+                              : constraints.maxHeight * 0.14,
                           child: GridView(
                             physics: BouncingScrollPhysics(),
                             gridDelegate:
-                                 SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: constraints.maxWidth >= 450 ? 5 : 3, childAspectRatio: 3.5),
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount:
+                                        constraints.maxWidth >= 450 ? 5 : 3,
+                                    childAspectRatio: 3.5),
                             children: [
                               RadioNameButton(
                                 val: state.nounToggle,
@@ -246,19 +240,21 @@ void removeFromMainExample(int index){
                         );
                       },
                     ),
-                    
+
                     /// Persian definition textfield
                     Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Container(
-                        height:constraints.maxWidth >= 450 ? constraints.maxHeight *0.2 : constraints.maxHeight * 0.09,
+                        height: constraints.maxWidth >= 450
+                            ? constraints.maxHeight * 0.2
+                            : constraints.maxHeight * 0.09,
                         decoration: BoxDecoration(
                             shape: BoxShape.rectangle,
                             borderRadius: BorderRadius.circular(10),
                             color: ColorManager.grey.withOpacity(0.5)),
                         child: Row(children: [
                           IconButton(
-                            onPressed: addToFaDef,
+                            onPressed: addToSecDef,
                             icon: Icon(
                               Icons.add,
                               color: ColorManager.primary,
@@ -270,11 +266,11 @@ void removeFromMainExample(int index){
                                   getDefText(mode)[1],
                                   TextDirection.rtl,
                                   _secMeaningController,
-                                  addToFaDef)),
+                                  addToSecDef)),
                         ]),
                       ),
                     ),
-                    
+
                     /// List of Persian definition
                     BlocBuilder<DefinitionBloc, DefinitionState>(
                       builder: (context, state) {
@@ -284,7 +280,7 @@ void removeFromMainExample(int index){
                             height: constraints.maxHeight * 0.06,
                             width: constraints.maxWidth,
                             child: state.secDefs.isEmpty
-                                ?  Center(
+                                ? Center(
                                     child: Text(getAddDefText(mode)[1]),
                                   )
                                 : Directionality(
@@ -292,23 +288,26 @@ void removeFromMainExample(int index){
                                     child: ListView.builder(
                                       itemCount: state.secDefs.length,
                                       scrollDirection: Axis.horizontal,
-                                      itemBuilder: (context, index) => defItem(
+                                      itemBuilder: (context, index) =>
+                                          defItem(
                                         index,
                                         state.secDefs,
                                         TextDirection.rtl,
-                                        () => removeFromFaDef(index),
+                                        () => removeFromSecDef(index),
                                       ),
                                     )),
                           ),
                         );
                       },
                     ),
-                    
+
                     /// Main definition textfield
                     Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Container(
-                        height:constraints.maxWidth >= 450 ? constraints.maxHeight *0.2 : constraints.maxHeight * 0.09,
+                        height: constraints.maxWidth >= 450
+                            ? constraints.maxHeight * 0.2
+                            : constraints.maxHeight * 0.09,
                         decoration: BoxDecoration(
                             shape: BoxShape.rectangle,
                             borderRadius: BorderRadius.circular(10),
@@ -319,9 +318,9 @@ void removeFromMainExample(int index){
                                   getDefText(mode)[0],
                                   TextDirection.ltr,
                                   _mainMeaningController,
-                                  addToEnDef)),
+                                  addToMainDef)),
                           IconButton(
-                            onPressed: addToEnDef,
+                            onPressed: addToMainDef,
                             icon: Icon(
                               Icons.add,
                               color: ColorManager.primary,
@@ -331,7 +330,7 @@ void removeFromMainExample(int index){
                         ]),
                       ),
                     ),
-                    
+
                     /// List of English Definition
                     BlocBuilder<DefinitionBloc, DefinitionState>(
                       builder: (context, state) {
@@ -340,32 +339,34 @@ void removeFromMainExample(int index){
                           child: SizedBox(
                             height: constraints.maxHeight * 0.06,
                             child: state.mainDefs.isEmpty
-                                ?  Center(
-                                    child: Text(
-                                      getAddDefText(mode)[0]
-                                    ),
+                                ? Center(
+                                    child: Text(getAddDefText(mode)[0]),
                                   )
                                 : Directionality(
                                     textDirection: TextDirection.ltr,
                                     child: ListView.builder(
                                       itemCount: state.mainDefs.length,
                                       scrollDirection: Axis.horizontal,
-                                      itemBuilder: (context, index) => defItem(
+                                      itemBuilder: (context, index) =>
+                                          defItem(
                                         index,
                                         state.mainDefs,
                                         TextDirection.ltr,
-                                        () => removeFromEnDef(index),
+                                        () => removeFromMainDef(index),
                                       ),
                                     )),
                           ),
                         );
                       },
                     ),
+
                     /// Main example textfield
                     Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Container(
-                        height:constraints.maxWidth >= 450 ? constraints.maxHeight *0.2 : constraints.maxHeight * 0.09,
+                        height: constraints.maxWidth >= 450
+                            ? constraints.maxHeight * 0.2
+                            : constraints.maxHeight * 0.09,
                         decoration: BoxDecoration(
                             shape: BoxShape.rectangle,
                             borderRadius: BorderRadius.circular(10),
@@ -388,8 +389,9 @@ void removeFromMainExample(int index){
                         ]),
                       ),
                     ),
+
                     /// List of main example
-                     BlocBuilder<DefinitionBloc, DefinitionState>(
+                    BlocBuilder<DefinitionBloc, DefinitionState>(
                       builder: (context, state) {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -406,7 +408,8 @@ void removeFromMainExample(int index){
                                     child: ListView.builder(
                                       itemCount: state.mainExample.length,
                                       scrollDirection: Axis.horizontal,
-                                      itemBuilder: (context, index) => defItem(
+                                      itemBuilder: (context, index) =>
+                                          defItem(
                                         index,
                                         state.mainExample,
                                         TextDirection.ltr,
@@ -426,5 +429,4 @@ void removeFromMainExample(int index){
       ),
     );
   }
-
 }

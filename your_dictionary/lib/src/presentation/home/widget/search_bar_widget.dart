@@ -1,8 +1,6 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:your_dictionary/src/bloc/word_search/word_search_bloc.dart';
+import 'package:your_dictionary/src/bloc/search_word/search_word_cubit.dart';
 import 'package:your_dictionary/src/presentation/resources/routes_manager.dart';
 import 'package:your_dictionary/src/presentation/resources/strings_manager.dart';
 import '../../resources/color_manager.dart';
@@ -17,9 +15,8 @@ class SearchBarWidget extends StatefulWidget {
 
 class _SearchBarWidgetState extends State<SearchBarWidget> {
   final TextEditingController _searchController = TextEditingController();
-  bool isSearching = false;
 
-@override
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -44,25 +41,16 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                   onPressed: () {
                     Navigator.pushNamed(context, Routes.settingsRoute);
                   },
-                  icon: Icon(Icons.menu),
+                  icon: Icon(Icons.settings),
                 )),
             SizedBox(
               width: widget.constraints.maxWidth * 0.83,
               child: TextField(
                 controller: _searchController,
                 onChanged: (_) {
-                  context.read<WordSearchBloc>().add(
-                        SetSearchTermEvent(searchTerm: _searchController.text),
-                      );
-                  if (_searchController.text.isNotEmpty) {
-                    setState(() {
-                      isSearching = true;
-                    });
-                  } else {
-                    setState(() {
-                      isSearching = false;
-                    });
-                  }
+                  context
+                      .read<SearchWordCubit>()
+                      .setSearchTerm(searchTerm: _searchController.text);
                 },
                 decoration: InputDecoration(
                   hintText: AppStrings.searchWord,
@@ -71,22 +59,23 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  prefixIcon: IconButton(
-                    splashRadius: 1,
-                    color: ColorManager.primary,
-                    onPressed: () {
-                     if(isSearching){
-                       _searchController.clear();
-                        context.read<WordSearchBloc>().add(
-                        SetSearchTermEvent(searchTerm: _searchController.text));
-                       setState(() {
-                         isSearching = false;
-                       });
-                     }
+                  prefixIcon: BlocBuilder<SearchWordCubit, SearchWordState>(
+                    builder: (context, state) {
+                      return IconButton(
+                        splashRadius: 1,
+                        color: ColorManager.primary,
+                        onPressed: () {
+                          if (state.searchTerm.isNotEmpty) {
+                            _searchController.clear();
+                            context.read<SearchWordCubit>().setSearchTerm(
+                                searchTerm: _searchController.text);
+                          }
+                        },
+                        icon: Icon(
+                          state.searchTerm.isNotEmpty ? Icons.close : Icons.search,
+                        ),
+                      );
                     },
-                    icon: Icon(
-                      isSearching ? Icons.close : Icons.search,
-                    ),
                   ),
                   fillColor: ColorManager.grey,
                 ),

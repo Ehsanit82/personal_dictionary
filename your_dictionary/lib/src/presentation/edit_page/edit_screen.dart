@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:your_dictionary/src/domain/models/word.dart';
 
-import '../../bloc/check_validate/check_validate_bloc.dart';
 import '../../bloc/definition/definition_bloc.dart';
 import '../../bloc/radio_toggle/radio_toggle_bloc.dart';
 import '../../bloc/word/word_bloc.dart';
@@ -22,12 +21,12 @@ class EditWordScreen extends StatefulWidget {
 class _EditWordScreenState extends State<EditWordScreen> {
   late RadioToggleBloc radioToggleBloc;
   late DefinitionBloc definitionBloc;
-  late CheckValidateBloc checkValidateBloc;
+
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
-  late TextEditingController _faMeaningController;
-  late TextEditingController _enMeaningController;
+  late TextEditingController _secMeaningController;
+  late TextEditingController _mainMeaningController;
   late TextEditingController _mainExampleController;
   late LanguageMode mode;
 
@@ -37,11 +36,10 @@ class _EditWordScreenState extends State<EditWordScreen> {
   @override
   void initState() {
     _titleController = TextEditingController();
-    _faMeaningController = TextEditingController();
-    _enMeaningController = TextEditingController();
+    _secMeaningController = TextEditingController();
+    _mainMeaningController = TextEditingController();
     _mainExampleController = TextEditingController();
-     _titleController.addListener(() =>
-        checkValidateBloc.add(CheckTitleEvent(value: _titleController.text)));
+
     super.initState();
   }
 
@@ -49,12 +47,10 @@ class _EditWordScreenState extends State<EditWordScreen> {
   void dispose() {
     print("dispose edit screen");
     _titleController.dispose();
-    _faMeaningController.dispose();
-    _enMeaningController.dispose();
+    _secMeaningController.dispose();
+    _mainMeaningController.dispose();
     _mainExampleController.dispose();
-    radioToggleBloc.add(ResetToggleEvent());
-    definitionBloc.add(ResetDefinitionEvent());
-    checkValidateBloc.add(ResetValidationEvent());
+
     super.dispose();
   }
 
@@ -73,7 +69,6 @@ class _EditWordScreenState extends State<EditWordScreen> {
   void setValue() {
     radioToggleBloc = context.read<RadioToggleBloc>();
     definitionBloc = context.read<DefinitionBloc>();
-    checkValidateBloc = context.read<CheckValidateBloc>();
     mode = context.read<WordBloc>().state.mode;
     wordData = context.read<WordBloc>().state.wordList[index];
     _titleController.text = wordData.title;
@@ -106,7 +101,7 @@ class _EditWordScreenState extends State<EditWordScreen> {
       adverb: radioToggleBloc.state.adverbToggle,
       verb: radioToggleBloc.state.verbToggle,
       phrases: radioToggleBloc.state.phrasesToggle,
-      title: _titleController.text,
+      title: _titleController.text.trim(),
       secMeaning: definitionBloc.state.secDefs,
       mainMeaning: definitionBloc.state.mainDefs,
       mainExample: definitionBloc.state.mainExample,
@@ -117,17 +112,17 @@ class _EditWordScreenState extends State<EditWordScreen> {
     Navigator.pop(context);
   }
 
-  void addToFaDef() {
-    if (_faMeaningController.text.isNotEmpty) {
+  void addToSecDef() {
+    if (_secMeaningController.text.trim().isNotEmpty) {
       definitionBloc
-          .add(AddToSecDefsEvent(faDef: _faMeaningController.text));
-      _faMeaningController.clear();
+          .add(AddToSecDefsEvent(faDef: _secMeaningController.text.trim()));
+      _secMeaningController.clear();
     }
   }
   void addToMainExample() {
-    if (_mainExampleController.text.isNotEmpty) {
+    if (_mainExampleController.text.trim().isNotEmpty) {
       definitionBloc
-          .add(AddToMainExEvent(mainExample: _mainExampleController.text));
+          .add(AddToMainExEvent(mainExample: _mainExampleController.text.trim()));
       _mainExampleController.clear();
     }
   }
@@ -135,19 +130,19 @@ class _EditWordScreenState extends State<EditWordScreen> {
     definitionBloc.add(RemoveFromMainExEvent(index: index));
 
   }
-  void addToEnDef() {
-    if (_enMeaningController.text.isNotEmpty) {
+  void addToMainDef() {
+    if (_mainMeaningController.text.trim().isNotEmpty) {
       definitionBloc
-          .add(AddToMainDefsEvent(enDef: _enMeaningController.text));
-      _enMeaningController.clear();
+          .add(AddToMainDefsEvent(enDef: _mainMeaningController.text.trim()));
+      _mainMeaningController.clear();
     }
   }
 
-  void removeFromFaDef(int index) {
+  void removeFromSecDef(int index) {
     definitionBloc.add(RemoveFromSecDefEvent(index: index));
   }
 
-  void removeFromEnDef(int index) {
+  void removeFromMainDef(int index) {
     definitionBloc.add(RemoveFromMainDefEvent(index: index));
   }
 
@@ -194,18 +189,15 @@ class _EditWordScreenState extends State<EditWordScreen> {
                         style: const TextStyle(fontSize: 20),
                         textAlign: TextAlign.center,
                         validator: (value) {
-                          if (value!.isEmpty) {
+                          if (value!.trim().isEmpty) {
                             return AppStrings.notEmpty;
                           }
                           return null;
                         },
                         decoration: InputDecoration(
                           errorStyle: const TextStyle(fontSize: 14),
-                          hintText: AppStrings.helloWorld,
-                          errorText: context
-                                  .watch<CheckValidateBloc>()
-                                  .state
-                                  .isTitleEmpty
+                          hintText: AppStrings.word,
+                          errorText: _titleController.text.isEmpty
                               ? AppStrings.notEmpty
                               : null,
                         ),
@@ -285,7 +277,7 @@ class _EditWordScreenState extends State<EditWordScreen> {
                             color: ColorManager.grey.withOpacity(0.5)),
                         child: Row(children: [
                           IconButton(
-                            onPressed: addToFaDef,
+                            onPressed: addToSecDef,
                             icon: Icon(
                               Icons.add,
                               color: ColorManager.primary,
@@ -296,8 +288,8 @@ class _EditWordScreenState extends State<EditWordScreen> {
                               child: customTextFormField(
                                   AppStrings.persianDef,
                                   TextDirection.rtl,
-                                  _faMeaningController,
-                                  addToFaDef)),
+                                  _secMeaningController,
+                                  addToSecDef)),
                         ]),
                       ),
                     ),
@@ -324,7 +316,7 @@ class _EditWordScreenState extends State<EditWordScreen> {
                                         index,
                                         state.secDefs,
                                         TextDirection.rtl,
-                                        () => removeFromFaDef(index),
+                                        () => removeFromSecDef(index),
                                       ),
                                     )),
                           ),
@@ -348,10 +340,10 @@ class _EditWordScreenState extends State<EditWordScreen> {
                               child: customTextFormField(
                                   AppStrings.englishDef,
                                   TextDirection.ltr,
-                                  _enMeaningController,
-                                  addToEnDef)),
+                                  _mainMeaningController,
+                                  addToMainDef)),
                           IconButton(
-                            onPressed: addToEnDef,
+                            onPressed: addToMainDef,
                             icon: Icon(
                               Icons.add,
                               color: ColorManager.primary,
@@ -384,7 +376,7 @@ class _EditWordScreenState extends State<EditWordScreen> {
                                         index,
                                         state.mainDefs,
                                         TextDirection.ltr,
-                                        () => removeFromEnDef(index),
+                                        () => removeFromMainDef(index),
                                       ),
                                     )),
                           ),

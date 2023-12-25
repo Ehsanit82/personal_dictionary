@@ -1,14 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:your_dictionary/src/bloc/filtered_words/filtered_words_bloc.dart';
-import 'package:your_dictionary/src/bloc/marked_words/marked_words_bloc.dart';
+import 'package:your_dictionary/src/bloc/mark_word/mark_word_cubit.dart';
+import 'package:your_dictionary/src/bloc/search_word/search_word_cubit.dart';
 
 import 'package:your_dictionary/src/bloc/word/word_bloc.dart';
 import 'package:your_dictionary/src/bloc/word_filter/word_filter_bloc.dart';
-import 'package:your_dictionary/src/bloc/word_search/word_search_bloc.dart';
 import 'package:your_dictionary/src/constant/functions.dart';
 import 'package:your_dictionary/src/presentation/resources/assets_manager.dart';
 import 'package:your_dictionary/src/presentation/resources/color_manager.dart';
@@ -36,13 +35,13 @@ class _WordListWidgetState extends State<WordListWidget> {
     words = context.watch<FilteredWordsBloc>().state.wordList;
     return MultiBlocListener(
       listeners: [
-        BlocListener<MarkedWordsBloc, MarkedWordsState>(
+        BlocListener<MarkWordCubit, MarkWordState>(
           listener: (context, state) {
             context.read<FilteredWordsBloc>().add(
                   SetFilteredWords(
                       filter: context.read<WordFilterBloc>().state.filters,
                       searchTerm:
-                          context.read<WordSearchBloc>().state.searchTerm,
+                          context.read<SearchWordCubit>().state.searchTerm,
                       words: context.read<WordBloc>().state.wordList,
                       limit: state.typeOfLimit),
                 );
@@ -54,13 +53,13 @@ class _WordListWidgetState extends State<WordListWidget> {
                   SetFilteredWords(
                       filter: context.read<WordFilterBloc>().state.filters,
                       searchTerm:
-                          context.read<WordSearchBloc>().state.searchTerm,
+                          context.read<SearchWordCubit>().state.searchTerm,
                       words: state.wordList,
                       limit: widget.limit),
                 );
           },
         ),
-        BlocListener<WordSearchBloc, WordSearchState>(
+        BlocListener<SearchWordCubit, SearchWordState>(
           listener: (context, state) {
             context.read<FilteredWordsBloc>().add(
                   SetFilteredWords(
@@ -76,7 +75,7 @@ class _WordListWidgetState extends State<WordListWidget> {
           context.read<FilteredWordsBloc>().add(
                 SetFilteredWords(
                     filter: state.filters,
-                    searchTerm: context.read<WordSearchBloc>().state.searchTerm,
+                    searchTerm: context.read<SearchWordCubit>().state.searchTerm,
                     words: context.read<WordBloc>().state.wordList,
                     limit: widget.limit),
               );

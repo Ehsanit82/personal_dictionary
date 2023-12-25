@@ -34,9 +34,7 @@ class FilteredWordsBloc extends Bloc<FilteredWordsEvent, FilteredWordsState> {
       if(event.searchTerm.isNotEmpty){
         filteredWords = filteredWords.where((word) => word.title.toLowerCase().contains(event.searchTerm.toLowerCase())).toList();
       }
-      print(filteredWords);
       emit(state.copyWith(wordList: filteredWords));
-      
     });
   }
 }

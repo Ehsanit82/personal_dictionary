@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:your_dictionary/src/bloc/change_filter_color/change_filter_color_bloc.dart';
+import 'package:your_dictionary/src/bloc/change_filter_color/change_filter_color_cubit.dart';
 import 'package:your_dictionary/src/bloc/word_filter/word_filter_bloc.dart';
 import 'package:your_dictionary/src/presentation/resources/color_manager.dart';
 
@@ -18,7 +17,6 @@ class WordFilterWidget extends StatefulWidget {
 }
 
 class _WordFilterWidgetState extends State<WordFilterWidget> {
-  Color color = ColorManager.white;
   List<Filter> filterTypes = [];
   @override
   Widget build(BuildContext context) {
@@ -26,7 +24,9 @@ class _WordFilterWidgetState extends State<WordFilterWidget> {
       height: widget.constraints.maxWidth >= 450
           ? widget.constraints.maxHeight * 0.1
           : widget.constraints.maxHeight * 0.047,
-      top:widget.constraints.maxWidth >= 450? widget.constraints.maxHeight *0.24 : widget.constraints.maxHeight * 0.1001,
+      top: widget.constraints.maxWidth >= 450
+          ? widget.constraints.maxHeight * 0.24
+          : widget.constraints.maxHeight * 0.1001,
       right: 0,
       left: 0,
       child: ListView(
@@ -47,7 +47,7 @@ class _WordFilterWidgetState extends State<WordFilterWidget> {
                 style: ElevatedButton.styleFrom(
                     foregroundColor: ColorManager.primary,
                     backgroundColor: context
-                        .watch<ChangeFilterColorBloc>()
+                        .watch<ChangeFilterColorCubit>()
                         .state
                         .colorMap[index],
                     elevation: 0,
@@ -67,28 +67,28 @@ class _WordFilterWidgetState extends State<WordFilterWidget> {
     switch (index) {
       case 0:
         context
-            .read<ChangeFilterColorBloc>()
-            .add(SetColorFilterEvent(filterIndex: 0, color: ColorManager.grey));
+            .read<ChangeFilterColorCubit>()
+            .setFilterColor(filterIndex: 0, color:  ColorManager.filterColor);
         break;
       case 1:
         context
-            .read<ChangeFilterColorBloc>()
-            .add(SetColorFilterEvent(filterIndex: 1, color: ColorManager.grey));
+            .read<ChangeFilterColorCubit>()
+            .setFilterColor(filterIndex: 1, color: ColorManager.filterColor);
         break;
       case 2:
         context
-            .read<ChangeFilterColorBloc>()
-            .add(SetColorFilterEvent(filterIndex: 2, color: ColorManager.grey));
+            .read<ChangeFilterColorCubit>()
+            .setFilterColor(filterIndex: 2, color: ColorManager.filterColor);
         break;
       case 3:
         context
-            .read<ChangeFilterColorBloc>()
-            .add(SetColorFilterEvent(filterIndex: 3, color: ColorManager.grey));
+            .read<ChangeFilterColorCubit>()
+            .setFilterColor(filterIndex: 3, color:  ColorManager.filterColor);
         break;
       case 4:
         context
-            .read<ChangeFilterColorBloc>()
-            .add(SetColorFilterEvent(filterIndex: 4, color: ColorManager.grey));
+            .read<ChangeFilterColorCubit>()
+            .setFilterColor(filterIndex: 4, color:  ColorManager.filterColor);
         break;
     }
   }

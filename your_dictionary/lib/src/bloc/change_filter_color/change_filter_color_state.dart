@@ -1,5 +1,5 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-part of 'change_filter_color_bloc.dart';
+part of 'change_filter_color_cubit.dart';
+
 
 class ChangeFilterColorState {
   Map<int, Color> colorMap;
