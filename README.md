@@ -15,3 +15,4 @@ Features of the program:
 
 • Ability to show desired words
 
+• saving words in a file
