@@ -4,7 +4,7 @@ import 'package:your_dictionary/src/domain/models/word.dart';
 import 'package:your_dictionary/src/presentation/resources/strings_manager.dart';
 import '../bloc/word/word_bloc.dart';
 
-const String apiKey = 'd5779820f9b3402680fefc5d757a46e4';
+const String apiKey = 'TTS_API_KEY';
 
 const String EN_FA_BOX = "EN_FA_BOX";
 const String DE_FA_BOX = "DE_FA_BOX";
